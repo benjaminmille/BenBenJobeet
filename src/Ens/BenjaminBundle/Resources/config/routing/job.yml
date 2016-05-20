@@ -1,0 +1,24 @@
+ens_job_index:
+    path:     /
+    defaults: { _controller: "EnsBenjaminBundle:Job:index" }
+    methods:  GET
+
+ens_job_show:
+    path:     /{id}/show
+    defaults: { _controller: "EnsBenjaminBundle:Job:show" }
+    methods:  GET
+
+ens_job_new:
+    path:     /new
+    defaults: { _controller: "EnsBenjaminBundle:Job:new" }
+    methods:  [GET, POST]
+
+ens_job_edit:
+    path:     /{id}/edit
+    defaults: { _controller: "EnsBenjaminBundle:Job:edit" }
+    methods:  [GET, POST]
+
+ens_job_delete:
+    path:     /{id}/delete
+    defaults: { _controller: "EnsBenjaminBundle:Job:delete" }
+    methods:  DELETE
