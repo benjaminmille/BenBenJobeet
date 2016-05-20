@@ -57,13 +57,22 @@ class JobController extends Controller
      * Finds and displays a Job entity.
      *
      */
-    public function showAction(Job $job)
+    public function showAction(Job $id)
     {
-        $deleteForm = $this->createDeleteForm($job);
+        $em = $this->getDoctrine()->getEntityManager();
+
+        $job = $em->getRepository('EnsBenjaminBundle:Job')->find($id);
+
+        if (!$job) {
+            throw $this->createNotFoundException('Unable to find Job entity.');
+        }
+
+        $deleteForm = $this->createDeleteForm($id);
 
         return $this->render('job/show.html.twig', array(
-            'job' => $job,
+            'entity'      => $job,
             'delete_form' => $deleteForm->createView(),
+
         ));
     }
 
