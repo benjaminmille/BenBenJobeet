@@ -1,0 +1,3 @@
+ens_benjamin_homepage:
+    path:     /
+    defaults: { _controller: EnsBenjaminBundle:Default:index }
