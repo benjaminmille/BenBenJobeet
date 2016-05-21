@@ -2,7 +2,7 @@
 EnsBenjaminBundle_job:
     resource: "@EnsBenjaminBundle/Resources/config/routing/job.yml"
     prefix: /job
- 
+
 EnsBenjaminBundle_homepage:
-    pattern:  /hello/{name}
-    defaults: { _controller: EnsBenjaminBundle:Default:index }
+    pattern:  /
+    defaults: { _controller: EnsBenjaminBundle:Job:index }

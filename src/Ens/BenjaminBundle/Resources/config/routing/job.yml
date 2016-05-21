@@ -4,9 +4,10 @@ ens_job_index:
     methods:  GET
 
 ens_job_show:
-    path:     /{id}/show
+    path:  /{company}/{location}/{id}/{position}
     defaults: { _controller: "EnsBenjaminBundle:Job:show" }
-    methods:  GET
+    requirements:
+        id:  \d+
 
 ens_job_new:
     path:     /new

@@ -6,6 +6,7 @@
  * Time: 12:30
  */
 namespace Ens\BenjaminBundle\Utils;
+
 class Jobeet
 {
     static public function slugify($text)
