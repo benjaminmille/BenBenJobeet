@@ -1,6 +1,7 @@
 # src/Ens/BenjaminBundle/Resources/config/doctrine/Job.orm.yml
 Ens\BenjaminBundle\Entity\Job:
   type: entity
+  repositoryClass: Ens\BenjaminBundle\Repository\JobRepository
   table: job
   id:
     id:
@@ -60,5 +61,5 @@ Ens\BenjaminBundle\Entity\Job:
         name: category_id
         referencedColumnName: id
   lifecycleCallbacks:
-    prePersist: [ setCreatedAtValue ]
+    prePersist: [ setCreatedAtValue, setExpiresAtValue ]
     preUpdate: [ setUpdatedAtValue ]

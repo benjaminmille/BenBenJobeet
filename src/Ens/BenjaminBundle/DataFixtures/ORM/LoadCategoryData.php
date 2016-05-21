@@ -8,37 +8,38 @@ use Ens\BenjaminBundle\Entity\Category;
 
 class LoadCategoryData extends AbstractFixture implements OrderedFixtureInterface
 {
-public function load(ObjectManager $em)
-{
-$design = new Category();
-$design->setName('Design');
 
-$programming = new Category();
-$programming->setName('Programming');
+    public function load(ObjectManager $em)
+    {
+        $design = new Category();
+        $design->setName('Design');
 
-$manager = new Category();
-$manager->setName('Manager');
+        $programming = new Category();
+        $programming->setName('Programming');
 
-$administrator = new Category();
-$administrator->setName('Administrator');
+        $manager = new Category();
+        $manager->setName('Manager');
 
-$em->persist($design);
-$em->persist($programming);
-$em->persist($manager);
-$em->persist($administrator);
+        $administrator = new Category();
+        $administrator->setName('Administrator');
 
-$em->flush();
+        $em->persist($design);
+        $em->persist($programming);
+        $em->persist($manager);
+        $em->persist($administrator);
 
-$this->addReference('category-design', $design);
-$this->addReference('category-programming', $programming);
-$this->addReference('category-manager', $manager);
-$this->addReference('category-administrator', $administrator);
-}
+        $em->flush();
 
-public function getOrder()
-{
-return 1; // the order in which fixtures will be loaded
-}
+        $this->addReference('category-design', $design);
+        $this->addReference('category-programming', $programming);
+        $this->addReference('category-manager', $manager);
+        $this->addReference('category-administrator', $administrator);
+    }
+
+    public function getOrder()
+    {
+        return 1; // the order in which fixtures will be loaded
+    }
 }
 
 ?>

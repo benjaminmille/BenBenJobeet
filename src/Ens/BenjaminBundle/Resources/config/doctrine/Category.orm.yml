@@ -1,6 +1,7 @@
 # src/Ens/BenjaminBundle/Resources/config/doctrine/Category.orm.yml
 Ens\BenjaminBundle\Entity\Category:
   type: entity
+  repositoryClass: Ens\BenjaminBundle\Repository\CategoryRepository
   table: category
   id:
     id:
