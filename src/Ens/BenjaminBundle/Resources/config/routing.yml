@@ -4,5 +4,9 @@ EnsBenjaminBundle_job:
     prefix: /job
 
 EnsBenjaminBundle_homepage:
-    pattern:  /
+    path:  /
     defaults: { _controller: EnsBenjaminBundle:Job:index }
+
+EnsBenjaminBundle_category:
+    path: /category/{slug}/{page}
+    defaults: { _controller: EnsBenjaminBundle:Category:show, page: 1 }

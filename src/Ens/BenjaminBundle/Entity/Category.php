@@ -1,6 +1,7 @@
 <?php
 
 namespace Ens\BenjaminBundle\Entity;
+use Ens\BenjaminBundle\Utils\Jobeet;
 
 /**
  * Category
@@ -28,6 +29,8 @@ class Category
     private $category_affiliates;
 
     private $active_jobs;
+
+    private $more_jobs;
 
     /**
      * Constructor
@@ -153,5 +156,51 @@ class Category
     public function getActiveJobs()
     {
         return $this->active_jobs;
+    }
+
+    public function setMoreJobs($jobs)
+    {
+        $this->more_jobs = $jobs >=  0 ? $jobs : 0;
+    }
+
+    public function getMoreJobs()
+    {
+        return $this->more_jobs;
+    }
+    /**
+     * @var string
+     */
+    private $slug;
+
+
+    /**
+     * Set slug
+     *
+     * @param string $slug
+     *
+     * @return Category
+     */
+    public function setSlug($slug)
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    /**
+     * Get slug
+     *
+     * @return string
+     */
+    public function getSlug()
+    {
+        return $this->slug;
+    }
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setSlugValue()
+    {
+        $this->slug = Jobeet::slugify($this->getName());
     }
 }

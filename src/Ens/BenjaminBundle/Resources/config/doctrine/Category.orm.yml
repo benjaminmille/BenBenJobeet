@@ -1,4 +1,5 @@
 # src/Ens/BenjaminBundle/Resources/config/doctrine/Category.orm.yml
+
 Ens\BenjaminBundle\Entity\Category:
   type: entity
   repositoryClass: Ens\BenjaminBundle\Repository\CategoryRepository
@@ -12,6 +13,10 @@ Ens\BenjaminBundle\Entity\Category:
       type: string
       length: 255
       unique: true
+    slug:
+      type: string
+      length: 255
+      unique: true
   oneToMany:
     jobs:
       targetEntity: Job
@@ -19,3 +24,6 @@ Ens\BenjaminBundle\Entity\Category:
     category_affiliates:
       targetEntity: CategoryAffiliate
       mappedBy: category
+  lifecycleCallbacks:
+    prePersist: [ setSlugValue ]
+    preUpdate: [ setSlugValue ]
