@@ -43,3 +43,8 @@ ens_job_publish:
     path:  /{token}/publish
     defaults: { _controller: "EnsBenjaminBundle:Job:publish" }
     requirements: { methods: post }
+
+ens_job_extend:
+    path:  /{token}/extend
+    defaults: { _controller: "EnsBenjaminBundle:Job:extend" }
+    requirements: { methods: post }
