@@ -34,7 +34,7 @@ class Jobeet
             return 'n-a';
         }
 
-        return $text; 
+        return $text;
     }
 }
 
