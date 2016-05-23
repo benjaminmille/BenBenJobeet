@@ -97,7 +97,6 @@ class Job
 
     public $file;
 
-
     /**
      * Get id
      *
@@ -551,6 +550,8 @@ class Job
         return null === $this->logo ? null : $this->getUploadRootDir().'/'.$this->logo;
     }
 
+
+
     /**
      * @ORM\PrePersist
      */
@@ -611,6 +612,7 @@ class Job
     {
         return ceil(($this->getExpiresAt()->format('U') - time()) / 86400);
     }
+
 
     public function publish()
     {

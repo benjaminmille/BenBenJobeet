@@ -1,4 +1,4 @@
-ens_job_index:
+ens_job:
     path:     /
     defaults: { _controller: "EnsBenjaminBundle:Job:index" }
     methods:  GET
@@ -9,17 +9,37 @@ ens_job_show:
     requirements:
         id:  \d+
 
+ens_job_preview:
+    path:  /{company}/{location}/{token}/{position}
+    defaults: { _controller: "EnsBenjaminBundle:Job:preview" }
+    requirements:
+        token:  \w+
+
 ens_job_new:
     path:     /new
     defaults: { _controller: "EnsBenjaminBundle:Job:new" }
     methods:  [GET, POST]
 
+ens_job_create:
+    path:  /create
+    defaults: { _controller: "EnsBenjaminBundle:Job:create" }
+    requirements: { methods: post }
+
 ens_job_edit:
-    path:     /{id}/edit
+    path:  /{token}/edit
     defaults: { _controller: "EnsBenjaminBundle:Job:edit" }
-    methods:  [GET, POST]
+
+ens_job_update:
+    path:  /{token}/update
+    defaults: { _controller: "EnsBenjaminBundle:Job:update" }
+    requirements: { methods: post }
 
 ens_job_delete:
-    path:     /{id}/delete
+    path:  /{token}/delete
     defaults: { _controller: "EnsBenjaminBundle:Job:delete" }
-    methods:  DELETE
+    requirements: { methods: post }
+
+ens_job_publish:
+    path:  /{token}/publish
+    defaults: { _controller: "EnsBenjaminBundle:Job:publish" }
+    requirements: { methods: post }

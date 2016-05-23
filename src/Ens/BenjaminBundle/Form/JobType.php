@@ -16,24 +16,22 @@ class JobType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder
-            ->add('type', 'choice', array('choices' => Job::getTypes(), 'expanded' => true))
-            ->add('company')
-            ->add('file', 'file', array('label' => 'Company logo', 'required' => false))
-            ->add('how_to_apply', null, array('label' => 'How to apply?'))
-            ->add('is_public', null, array('label' => 'Public?'))
-            ->add('url')
-            ->add('position')
-            ->add('location')
-            ->add('description')
-            ->add('email')
-            ->add('category')
-        ;
+        $builder->add('category');
+        $builder->add('type', 'choice', array('choices' => Job::getTypes(), 'expanded' => true));
+        $builder->add('company');
+        $builder->add('file', 'file', array('label' => 'Company logo', 'required' => false));
+        $builder->add('url');
+        $builder->add('position');
+        $builder->add('location');
+        $builder->add('description');
+        $builder->add('how_to_apply', null, array('label' => 'How to apply?'));
+        $builder->add('is_public', null, array('label' => 'Public?'));
+        $builder->add('email');
     }
 
     public function getName()
     {
-        return 'job';
+        return 'ens_benjaminbundle_jobtype';
     }
 }
 ?>

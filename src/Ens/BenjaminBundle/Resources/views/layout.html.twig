@@ -47,13 +47,13 @@
     <div id="content">
         {% if app.session.flashbag.get('notice') %}
             <div class="flash_notice">
-                {{ flash_message }}
+                { app.session.flashbag.get('notice') }
             </div>
         {% endif %}
 
         {% if app.session.flashbag.get('error') %}
             <div class="flash_error">
-                {{ flash_message }}
+                { app.session.flashbag.get('error') }
             </div>
         {% endif %}
 
