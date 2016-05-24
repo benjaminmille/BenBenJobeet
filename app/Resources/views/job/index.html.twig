@@ -12,7 +12,7 @@
             <div>
                 <div class="category">
                     <div class="feed">
-                        <a href="">Feed</a>
+                        <a href="{{ path('EnsBenjaminBundle_category', { 'slug': category.slug, '_format': 'atom' }) }}">Feed</a>
                     </div>
                     <h1><a href="{{ path('EnsBenjaminBundle_category', { 'slug': category.slug }) }}">{{ category.name }}</a></h1>
                 </div>

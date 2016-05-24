@@ -17,4 +17,4 @@ services:
         class: Ens\BenjaminBundle\Admin\JobAdmin
         tags:
             - { name: sonata.admin, manager_type: orm, group: jobeet, label: Jobs }
-        arguments: [null, Ens\BenjaminBundle\Entity\Job, EnsBenjaminBundle:JobAdmin]
+        arguments: [null, Ens\BenjaminBundle\Entity\Job, EnsBenjaminBundle:jobadmin]

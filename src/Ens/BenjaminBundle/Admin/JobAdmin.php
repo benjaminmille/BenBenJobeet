@@ -76,7 +76,7 @@ class JobAdmin extends AbstractAdmin
             ->add('category')
             ->add('type')
             ->add('company')
-            ->add('webPath', 'string', array('template' => 'EnsBenjaminBundle:JobAdmin:list_image.html.twig'))
+            ->add('webPath', 'string', array('template' => 'EnsBenjaminBundle:jobadmin:list_image.html.twig'))
             ->add('url')
             ->add('position')
             ->add('location')
