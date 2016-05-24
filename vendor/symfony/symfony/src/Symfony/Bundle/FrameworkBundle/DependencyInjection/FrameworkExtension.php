@@ -39,6 +39,11 @@ class FrameworkExtension extends Extension
     private $sessionConfigEnabled = false;
 
     /**
+     * @var string|null
+     */
+    private $kernelRootHash;
+
+    /**
      * Responds to the app.config configuration parameter.
      *
      * @param array            $configs
@@ -143,6 +148,8 @@ class FrameworkExtension extends Extension
         }
 
         if ($container->getParameter('kernel.debug')) {
+            $definition->replaceArgument(2, -1 & ~(E_COMPILE_ERROR | E_PARSE | E_ERROR | E_CORE_ERROR | E_RECOVERABLE_ERROR));
+
             $loader->load('debug.xml');
 
             $definition = $container->findDefinition('http_kernel');
@@ -154,7 +161,7 @@ class FrameworkExtension extends Extension
             $container->setDefinition('debug.event_dispatcher.parent', $definition);
             $container->setAlias('event_dispatcher', 'debug.event_dispatcher');
         } else {
-            $definition->replaceArgument(2, E_COMPILE_ERROR | E_PARSE | E_ERROR | E_CORE_ERROR);
+            $definition->replaceArgument(1, null);
         }
 
         $this->addClassesToCompile(array(
@@ -591,7 +598,7 @@ class FrameworkExtension extends Extension
 
         $namedPackages = array();
         foreach ($config['packages'] as $name => $package) {
-            if (null === $package['version']) {
+            if (!array_key_exists('version', $package)) {
                 $version = $defaultVersion;
             } else {
                 $format = $package['version_format'] ?: $config['version_format'];
@@ -689,16 +696,17 @@ class FrameworkExtension extends Extension
 
             $dirs[] = dirname($r->getFileName()).'/../Resources/translations';
         }
-        $overridePath = $container->getParameter('kernel.root_dir').'/Resources/%s/translations';
+        $rootDir = $container->getParameter('kernel.root_dir');
         foreach ($container->getParameter('kernel.bundles') as $bundle => $class) {
             $reflection = new \ReflectionClass($class);
             if (is_dir($dir = dirname($reflection->getFileName()).'/Resources/translations')) {
                 $dirs[] = $dir;
             }
-            if (is_dir($dir = sprintf($overridePath, $bundle))) {
+            if (is_dir($dir = $rootDir.sprintf('/Resources/%s/translations', $bundle))) {
                 $dirs[] = $dir;
             }
         }
+
         foreach ($config['paths'] as $dir) {
             if (is_dir($dir)) {
                 $dirs[] = $dir;
@@ -706,7 +714,8 @@ class FrameworkExtension extends Extension
                 throw new \UnexpectedValueException(sprintf('%s defined in translator.paths does not exist or is not a directory', $dir));
             }
         }
-        if (is_dir($dir = $container->getParameter('kernel.root_dir').'/Resources/translations')) {
+
+        if (is_dir($dir = $rootDir.'/Resources/translations')) {
             $dirs[] = $dir;
         }
 
@@ -725,9 +734,8 @@ class FrameworkExtension extends Extension
                 ->in($dirs)
             ;
 
-            $locales = array();
             foreach ($finder as $file) {
-                list($domain, $locale, $format) = explode('.', $file->getBasename(), 3);
+                list(, $locale) = explode('.', $file->getBasename(), 3);
                 if (!isset($files[$locale])) {
                     $files[$locale] = array();
                 }
@@ -788,7 +796,7 @@ class FrameworkExtension extends Extension
         if (isset($config['cache'])) {
             $container->setParameter(
                 'validator.mapping.cache.prefix',
-                'validator_'.hash('sha256', $container->getParameter('kernel.root_dir'))
+                'validator_'.$this->getKernelRootHash($container)
             );
 
             $validatorBuilder->addMethodCall('setMetadataCache', array(new Reference($config['cache'])));
@@ -977,7 +985,7 @@ class FrameworkExtension extends Extension
         if (isset($config['cache']) && $config['cache']) {
             $container->setParameter(
                 'serializer.mapping.cache.prefix',
-                'serializer_'.hash('sha256', $container->getParameter('kernel.root_dir'))
+                'serializer_'.$this->getKernelRootHash($container)
             );
 
             $container->getDefinition('serializer.mapping.class_metadata_factory')->replaceArgument(
@@ -1010,6 +1018,22 @@ class FrameworkExtension extends Extension
             $definition->addTag('property_info.description_extractor', array('priority' => -1000));
             $definition->addTag('property_info.type_extractor', array('priority' => -1001));
         }
+    }
+
+    /**
+     * Gets a hash of the kernel root directory.
+     *
+     * @param ContainerBuilder $container
+     *
+     * @return string
+     */
+    private function getKernelRootHash(ContainerBuilder $container)
+    {
+        if (!$this->kernelRootHash) {
+            $this->kernelRootHash = hash('sha256', $container->getParameter('kernel.root_dir'));
+        }
+
+        return $this->kernelRootHash;
     }
 
     /**

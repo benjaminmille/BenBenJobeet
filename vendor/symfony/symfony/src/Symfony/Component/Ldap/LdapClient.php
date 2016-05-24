@@ -30,7 +30,6 @@ class LdapClient implements LdapClientInterface
     private $useStartTls;
     private $optReferrals;
     private $connection;
-    private $charmaps;
 
     /**
      * Constructor.
@@ -85,7 +84,16 @@ class LdapClient implements LdapClientInterface
         }
 
         $search = ldap_search($this->connection, $dn, $query, $filter);
+
+        if (false === $search) {
+            throw new LdapException(ldap_error($this->connection));
+        }
+
         $infos = ldap_get_entries($this->connection, $search);
+
+        if (false === @ldap_free_result($search)) {
+            throw new LdapException(ldap_error($this->connection));
+        }
 
         if (0 === $infos['count']) {
             return;
@@ -99,7 +107,20 @@ class LdapClient implements LdapClientInterface
      */
     public function escape($subject, $ignore = '', $flags = 0)
     {
-        return ldap_escape($subject, $ignore, $flags);
+        $value = ldap_escape($subject, $ignore, $flags);
+
+        // Per RFC 4514, leading/trailing spaces should be encoded in DNs, as well as carriage returns.
+        if ((int) $flags & LDAP_ESCAPE_DN) {
+            if (!empty($value) && $value[0] === ' ') {
+                $value = '\\20'.substr($value, 1);
+            }
+            if (!empty($value) && $value[strlen($value) - 1] === ' ') {
+                $value = substr($value, 0, -1).'\\20';
+            }
+            $value = str_replace("\r", '\0d', $value);
+        }
+
+        return $value;
     }
 
     private function connect()

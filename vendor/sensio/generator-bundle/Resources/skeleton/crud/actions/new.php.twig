@@ -17,7 +17,7 @@
     {
 {% block method_body %}
         ${{ entity_singularized }} = new {{ entity_class }}();
-        $form = $this->createForm(new {{ entity_class }}Type(), ${{ entity_singularized }});
+        $form = $this->createForm('{{ namespace }}\Form\{{ entity_class }}Type', ${{ entity_singularized }});
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -26,7 +26,7 @@
             $em->flush();
 
             {% if 'show' in actions -%}
-                return $this->redirectToRoute('{{ route_name_prefix }}_show', array('id' => ${{ entity_class|lower }}->getId()));
+                return $this->redirectToRoute('{{ route_name_prefix }}_show', array('id' => ${{ entity_singularized }}->getId()));
             {%- else -%}
                 return $this->redirectToRoute('{{ route_name_prefix }}_index'));
             {%- endif %}

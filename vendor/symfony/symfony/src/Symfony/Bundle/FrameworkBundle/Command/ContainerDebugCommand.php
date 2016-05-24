@@ -54,7 +54,7 @@ class ContainerDebugCommand extends ContainerAwareCommand
                 new InputOption('raw', null, InputOption::VALUE_NONE, 'To output raw description'),
             ))
             ->setDescription('Displays current services for an application')
-            ->setHelp(<<<EOF
+            ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command displays all configured <comment>public</comment> services:
 
   <info>php %command.full_name%</info>
@@ -80,7 +80,7 @@ Use the <info>--parameters</info> option to display all parameters:
 
   <info>php %command.full_name% --parameters</info>
 
-Display a specific parameter by specifying his name with the <info>--parameter</info> option:
+Display a specific parameter by specifying its name with the <info>--parameter</info> option:
 
   <info>php %command.full_name% --parameter=kernel.debug</info>
 
@@ -94,42 +94,38 @@ EOF
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output = new SymfonyStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         if (false !== strpos($input->getFirstArgument(), ':d')) {
-            $output->caution('The use of "container:debug" command is deprecated since version 2.7 and will be removed in 3.0. Use the "debug:container" instead.');
+            $io->caution('The use of "container:debug" command is deprecated since version 2.7 and will be removed in 3.0. Use the "debug:container" instead.');
         }
 
         $this->validateInput($input);
+        $object = $this->getContainerBuilder();
 
         if ($input->getOption('parameters')) {
-            $object = $this->getContainerBuilder()->getParameterBag();
+            $object = $object->getParameterBag();
             $options = array();
         } elseif ($parameter = $input->getOption('parameter')) {
-            $object = $this->getContainerBuilder();
             $options = array('parameter' => $parameter);
         } elseif ($input->getOption('tags')) {
-            $object = $this->getContainerBuilder();
             $options = array('group_by' => 'tags', 'show_private' => $input->getOption('show-private'));
         } elseif ($tag = $input->getOption('tag')) {
-            $object = $this->getContainerBuilder();
             $options = array('tag' => $tag, 'show_private' => $input->getOption('show-private'));
         } elseif ($name = $input->getArgument('name')) {
-            $object = $this->getContainerBuilder();
-            $name = $this->findProperServiceName($input, $output, $object, $name);
+            $name = $this->findProperServiceName($input, $io, $object, $name);
             $options = array('id' => $name);
         } else {
-            $object = $this->getContainerBuilder();
             $options = array('show_private' => $input->getOption('show-private'));
         }
 
         $helper = new DescriptorHelper();
         $options['format'] = $input->getOption('format');
         $options['raw_text'] = $input->getOption('raw');
-        $options['output'] = $output;
+        $options['output'] = $io;
         $helper->describe($output, $object, $options);
 
         if (!$input->getArgument('name') && $input->isInteractive()) {
-            $output->comment('To search for a specific service, re-run this command with a search term. (e.g. <comment>debug:container log</comment>)');
+            $io->comment('To search for a specific service, re-run this command with a search term. (e.g. <comment>debug:container log</comment>)');
         }
     }
 
@@ -188,7 +184,7 @@ EOF
         return $this->containerBuilder = $container;
     }
 
-    private function findProperServiceName(InputInterface $input, SymfonyStyle $output, ContainerBuilder $builder, $name)
+    private function findProperServiceName(InputInterface $input, SymfonyStyle $io, ContainerBuilder $builder, $name)
     {
         if ($builder->has($name) || !$input->isInteractive()) {
             return $name;
@@ -199,7 +195,7 @@ EOF
             throw new \InvalidArgumentException(sprintf('No services found that match "%s".', $name));
         }
 
-        return $output->choice('Select one of the following services to display its information', $matchingServices);
+        return $io->choice('Select one of the following services to display its information', $matchingServices);
     }
 
     private function findServiceIdsContaining(ContainerBuilder $builder, $name)

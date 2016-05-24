@@ -14,7 +14,7 @@ namespace Symfony\Component\DomCrawler;
 use Symfony\Component\CssSelector\CssSelectorConverter;
 
 /**
- * Crawler eases navigation of a list of \DOMElement objects.
+ * Crawler eases navigation of a list of \DOMNode objects.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
@@ -215,8 +215,11 @@ class Crawler extends \SplObjectStorage
      *
      * @param string $content The XML content
      * @param string $charset The charset
+     * @param int    $options Bitwise OR of the libxml option constants
+     *                        LIBXML_PARSEHUGE is dangerous, see
+     *                        http://symfony.com/blog/security-release-symfony-2-0-17-released
      */
-    public function addXmlContent($content, $charset = 'UTF-8')
+    public function addXmlContent($content, $charset = 'UTF-8', $options = LIBXML_NONET)
     {
         // remove the default namespace if it's the only namespace to make XPath expressions simpler
         if (!preg_match('/xmlns:/', $content)) {
@@ -230,7 +233,7 @@ class Crawler extends \SplObjectStorage
         $dom->validateOnParse = true;
 
         if ('' !== trim($content)) {
-            @$dom->loadXML($content, LIBXML_NONET);
+            @$dom->loadXML($content, $options);
         }
 
         libxml_use_internal_errors($internalErrors);
@@ -288,10 +291,6 @@ class Crawler extends \SplObjectStorage
     {
         if ($node instanceof \DOMDocument) {
             $node = $node->documentElement;
-        }
-
-        if (!$node instanceof \DOMElement) {
-            throw new \InvalidArgumentException(sprintf('Nodes set in a Crawler must be DOMElement or DOMDocument instances, "%s" given.', get_class($node)));
         }
 
         if (null !== $this->document && $this->document !== $node->ownerDocument) {
@@ -479,7 +478,7 @@ class Crawler extends \SplObjectStorage
         $nodes = array();
 
         while ($node = $node->parentNode) {
-            if (1 === $node->nodeType) {
+            if (XML_ELEMENT_NODE === $node->nodeType) {
                 $nodes[] = $node;
             }
         }
@@ -699,7 +698,7 @@ class Crawler extends \SplObjectStorage
      *
      * @return Link A Link instance
      *
-     * @throws \InvalidArgumentException If the current node list is empty
+     * @throws \InvalidArgumentException If the current node list is empty or the selected node is not instance of DOMElement
      */
     public function link($method = 'get')
     {
@@ -709,6 +708,10 @@ class Crawler extends \SplObjectStorage
 
         $node = $this->getNode(0);
 
+        if (!$node instanceof \DOMElement) {
+            throw new \InvalidArgumentException(sprintf('The selected node should be instance of DOMElement, got "%s".', get_class($node)));
+        }
+
         return new Link($node, $this->baseHref, $method);
     }
 
@@ -716,11 +719,17 @@ class Crawler extends \SplObjectStorage
      * Returns an array of Link objects for the nodes in the list.
      *
      * @return Link[] An array of Link instances
+     *
+     * @throws \InvalidArgumentException If the current node list contains non-DOMElement instances
      */
     public function links()
     {
         $links = array();
         foreach ($this as $node) {
+            if (!$node instanceof \DOMElement) {
+                throw new \InvalidArgumentException(sprintf('The current node list should contain only DOMElement instances, "%s" found.', get_class($node)));
+            }
+
             $links[] = new Link($node, $this->baseHref, 'get');
         }
 
@@ -735,7 +744,7 @@ class Crawler extends \SplObjectStorage
      *
      * @return Form A Form instance
      *
-     * @throws \InvalidArgumentException If the current node list is empty
+     * @throws \InvalidArgumentException If the current node list is empty or the selected node is not instance of DOMElement
      */
     public function form(array $values = null, $method = null)
     {
@@ -743,7 +752,13 @@ class Crawler extends \SplObjectStorage
             throw new \InvalidArgumentException('The current node list is empty.');
         }
 
-        $form = new Form($this->getNode(0), $this->uri, $method, $this->baseHref);
+        $node = $this->getNode(0);
+
+        if (!$node instanceof \DOMElement) {
+            throw new \InvalidArgumentException(sprintf('The selected node should be instance of DOMElement, got "%s".', get_class($node)));
+        }
+
+        $form = new Form($node, $this->uri, $method, $this->baseHref);
 
         if (null !== $values) {
             $form->setValues($values);
@@ -939,16 +954,6 @@ class Crawler extends \SplObjectStorage
     }
 
     /**
-     * @deprecated Using the SplObjectStorage API on the Crawler is deprecated as of 2.8 and will be removed in 3.0.
-     */
-    public function getHash($object)
-    {
-        $this->triggerDeprecation(__METHOD__, true);
-
-        return parent::getHash($object);
-    }
-
-    /**
      * Filters the list of nodes with an XPath expression.
      *
      * The XPath expression should already be processed to apply it in the context of each node.
@@ -965,12 +970,7 @@ class Crawler extends \SplObjectStorage
 
         foreach ($this as $node) {
             $domxpath = $this->createDOMXPath($node->ownerDocument, $prefixes);
-
-            foreach ($domxpath->query($xpath, $node) as $subNode) {
-                if ($subNode->nodeType === 1) {
-                    $crawler->add($subNode);
-                }
-            }
+            $crawler->add($domxpath->query($xpath, $node));
         }
 
         return $crawler;

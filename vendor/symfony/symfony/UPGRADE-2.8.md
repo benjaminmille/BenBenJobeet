@@ -1,8 +1,28 @@
 ﻿UPGRADE FROM 2.7 to 2.8
 =======================
 
+All components
+--------------
+
+* Symfony now requires the iconv extension to be present, which is the case by
+  default in most environments. However, if you're not able to ensure this
+  extension to be installed in your target environment, you can add Symfony's
+  iconv polyfill to your project's composer.json file.
+
+  ```json
+  "require": {
+      "symfony/polyfill-iconv": "~1.0"
+  }
+  ```
+
 Form
 ----
+
+ * The `intention` option was deprecated and will be removed in 3.0 in favor
+   of the new `csrf_token_id` option.
+
+ * The `csrf_provider` option was deprecated and will be removed in 3.0 in favor
+   of the new `csrf_token_manager` option.
 
  * The "cascade_validation" option was deprecated. Use the "constraints"
    option together with the `Valid` constraint instead. Contrary to
@@ -186,6 +206,41 @@ Form
    }
    ```
 
+ * In Symfony 2.7 a small BC break was introduced with the new choices_as_values
+   option. In order to have the choice values populated to the html value attribute
+   you had to define the choice_value option. This is now not any more needed.
+
+   Before:
+
+   ```php
+   $form->add('status', 'choice', array(
+       'choices' => array(
+           'Enabled' => Status::ENABLED,
+           'Disabled' => Status::DISABLED,
+           'Ignored' => Status::IGNORED,
+       ),
+       'choices_as_values' => true,
+       // important if you rely on your option value attribute (e.g. for JavaScript)
+       // this will keep the same functionality as before
+       'choice_value' => function ($choice) {
+           return $choice;
+       },
+   ));
+   ```
+
+   After (Symfony 2.8+):
+
+   ```php
+   $form->add('status', ChoiceType::class, array(
+       'choices' => array(
+           'Enabled' => Status::ENABLED,
+           'Disabled' => Status::DISABLED,
+           'Ignored' => Status::IGNORED,
+       ),
+       'choices_as_values' => true
+   ));
+   ```
+
  * Returning type instances from `FormTypeInterface::getParent()` is deprecated
    and will not be supported anymore in Symfony 3.0. Return the fully-qualified
    class name of the parent type class instead.
@@ -213,13 +268,13 @@ Form
        }
    }
    ```
-   
+
  * The option "options" of the CollectionType has been renamed to "entry_options".
    The usage of the option "options" is deprecated and will be removed in Symfony 3.0.
 
  * The option "type" of the CollectionType has been renamed to "entry_type".
    The usage of the option "type" is deprecated and will be removed in Symfony 3.0.
-   As a value for the option you should provide the fully-qualified class name (FQCN) 
+   As a value for the option you should provide the fully-qualified class name (FQCN)
    now as well.
 
  * Passing type instances to `Form::add()`, `FormBuilder::add()` and the
@@ -360,6 +415,10 @@ DependencyInjection
    </services>
    ```
 
+ * `Symfony\Component\DependencyInjection\ContainerAware` has been deprecated, use
+   `Symfony\Component\DependencyInjection\ContainerAwareTrait` or implement
+   `Symfony\Component\DependencyInjection\ContainerAwareInterface` manually
+
 WebProfiler
 -----------
 
@@ -453,6 +512,28 @@ FrameworkBundle
            cookie_httponly: false
    ```
 
+ * The `validator.mapping.cache.apc` service is deprecated, and will be removed in 3.0.
+   Use `validator.mapping.cache.doctrine.apc` instead.
+
+ * The ability to pass `apc` as the `framework.validation.cache` configuration key value is deprecated,
+   and will be removed in 3.0. Use `validator.mapping.cache.doctrine.apc` instead:
+
+   Before:
+
+   ```yaml
+   framework:
+       validation:
+           cache: apc
+   ```
+
+   After:
+
+   ```yaml
+   framework:
+       validation:
+           cache: validator.mapping.cache.doctrine.apc
+   ```
+
 Security
 --------
 
@@ -469,11 +550,17 @@ Security
  * The `intention` option is deprecated for all the authentication listeners,
    and will be removed in 3.0. Use the `csrf_token_id` option instead.
 
+ * The `csrf_provider` option is deprecated for all the authentication listeners,
+   and will be removed in 3.0. Use the `csrf_token_generator` option instead.
+
 SecurityBundle
 --------------
 
  * The `intention` firewall listener setting is deprecated, and will be removed in 3.0.
    Use the `csrf_token_id` option instead.
+
+ * The `csrf_provider` firewall listener setting is deprecated, and will be removed in 3.0.
+   Use the `csrf_token_generator` option instead.
 
 Config
 ------
@@ -524,4 +611,22 @@ Yaml
 
    ```yml
    class: "Foo\\Var"
+   ```
+
+HttpFoundation
+--------------
+
+ * Deprecated finding deep items in `ParameterBag::get()`. This may affect you
+   when getting parameters from the `Request` class:
+
+   Before:
+
+   ```php
+   $request->query->get('foo[bar]', null, true);
+   ```
+
+   After:
+
+   ```php
+   $request->query->get('foo')[bar];
    ```

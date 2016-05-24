@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\PropertyInfo\PropertyInfo\Tests;
+namespace Symfony\Component\PropertyInfo\Tests;
 
 use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use Symfony\Component\PropertyInfo\Tests\Fixtures\DummyExtractor;
@@ -26,7 +26,7 @@ class PropertyInfoExtractorTest extends \PHPUnit_Framework_TestCase
      */
     private $propertyInfo;
 
-    public function setUp()
+    protected function setUp()
     {
         $extractors = array(new NullExtractor(), new DummyExtractor());
         $this->propertyInfo = new PropertyInfoExtractor($extractors, $extractors, $extractors, $extractors);

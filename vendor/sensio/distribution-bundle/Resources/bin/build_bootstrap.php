@@ -42,7 +42,7 @@ if (!empty($argv[3])) {
     $useNewDirectoryStructure = true;
 }
 
-$rootDir = __DIR__.'/../../../../../../../..';
+$rootDir = __DIR__.'/../../../../..';
 if (null === $autoloadDir) {
     $autoloadDir = getRealpath($rootDir.'/app', 'Looks like you don\'t have a standard layout.');
 }
@@ -56,4 +56,4 @@ if (null === $bootstrapDir) {
 require_once $autoloadDir.'/autoload.php';
 
 // here we pass realpaths as resolution between absolute and relative path can be wrong
-ScriptHandler::doBuildBootstrap($bootstrapDir, $autoloadDir, $useNewDirectoryStructure);
+ScriptHandler::doBuildBootstrap($bootstrapDir);

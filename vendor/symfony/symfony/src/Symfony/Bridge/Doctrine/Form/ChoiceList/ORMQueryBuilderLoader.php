@@ -89,9 +89,10 @@ class ORMQueryBuilderLoader implements EntityLoaderInterface
      */
     public function getEntitiesByIds($identifier, array $values)
     {
-        $qb = clone ($this->queryBuilder);
+        $qb = clone $this->queryBuilder;
         $alias = current($qb->getRootAliases());
         $parameter = 'ORMQueryBuilderLoader_getEntitiesByIds_'.$identifier;
+        $parameter = str_replace('.', '_', $parameter);
         $where = $qb->expr()->in($alias.'.'.$identifier, ':'.$parameter);
 
         // Guess type
@@ -104,6 +105,13 @@ class ORMQueryBuilderLoader implements EntityLoaderInterface
             // databases such as PostgreSQL fail.
             $values = array_values(array_filter($values, function ($v) {
                 return (string) $v === (string) (int) $v;
+            }));
+        } elseif ('guid' === $metadata->getTypeOfField($identifier)) {
+            $parameterType = Connection::PARAM_STR_ARRAY;
+
+            // Like above, but we just filter out empty strings.
+            $values = array_values(array_filter($values, function ($v) {
+                return (string) $v !== '';
             }));
         } else {
             $parameterType = Connection::PARAM_STR_ARRAY;

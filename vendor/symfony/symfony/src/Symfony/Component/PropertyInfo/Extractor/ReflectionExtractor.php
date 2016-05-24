@@ -40,7 +40,7 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
     /**
      * @internal
      *
-     * @var array[]
+     * @var string[]
      */
     public static $arrayMutatorPrefixes = array('add', 'remove');
 
@@ -62,9 +62,13 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
 
         foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
             $propertyName = $this->getPropertyName($reflectionMethod->name);
-            if ($propertyName) {
-                $properties[$propertyName] = true;
+            if (!$propertyName || isset($properties[$propertyName])) {
+                continue;
             }
+            if (!preg_match('/^[A-Z]{2,}/', $propertyName)) {
+                $propertyName = lcfirst($propertyName);
+            }
+            $properties[$propertyName] = true;
         }
 
         return array_keys($properties);
@@ -290,8 +294,6 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
                 // Return null if the property doesn't exist
             }
         }
-
-        return;
     }
 
     /**
