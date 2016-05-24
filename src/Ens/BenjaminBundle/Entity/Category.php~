@@ -1,6 +1,8 @@
 <?php
 
 namespace Ens\BenjaminBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
 use Ens\BenjaminBundle\Utils\Jobeet;
 
 /**

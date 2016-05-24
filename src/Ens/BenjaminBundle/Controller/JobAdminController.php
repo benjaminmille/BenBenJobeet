@@ -48,7 +48,7 @@ class JobAdminController extends Controller
         }
 
         $em = $this->getDoctrine()->getEntityManager();
-        $nb = $em->getRepository('EnsJobeetBundle:Job')->cleanup(60);
+        $nb = $em->getRepository('EnsBenjaminBundle:Job')->cleanup(60);
 
         if ($nb) {
             $this->get('session')->getFlashBag()->add('sonata_flash_success',  sprintf('%d never activated jobs have been deleted successfully.', $nb));
